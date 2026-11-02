@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#C9B6EF">
+<meta name="color-scheme" content="light">
+<title>¿Ha comido? · Nexa3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&display=swap" rel="stylesheet">
+<style>
+  /* Estilo «Sello»: fondo del color del filamento, tinta violeta, tarjetas blancas con borde y sombra dura.
+     Tema claro fijo a propósito: la pantalla es la continuación del objeto, no del sistema. */
+  :root {
+    color-scheme: light;
+    --suelo: #C9B6EF;        /* lo cambia cada pieza (tema elegido) */
+    --surface: #FFFFFF;
+    --ink: #2A1F3D;
+    --muted: #4A3F5C;        /* sobre el suelo: contraste ≥ 4,5:1 en todos los temas */
+    --muted-on-white: #5C506E;
+    --soft: #F3EFF8;
+    --amarillo: #F4C430;
+    --verde: #3F8F3A;
+    --azul: #86BCE6;
+    --azul-ink: #2F6FB0;
+    --rojo: #C8262E;
+    --danger: #B3261E;
+    --borde: 2.5px solid var(--ink);
+    --sombra: 4px 5px 0 var(--ink);
+    --r-lg: 22px;
+    --r-md: 14px;
+    --display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --text: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --legible: "Atkinson Hyperlegible", system-ui, sans-serif;   /* contraseñas y PIN: distingue 0/O y l/I/1 */
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--suelo); }
+  body {
+    color: var(--ink);
+    font-family: var(--text);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    min-height: 100dvh;
+    transition: background-color .4s ease;
+  }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 10px; }
+  h1, h2, h3 { text-wrap: balance; }
+
+  main {
+    max-width: 460px;
+    margin: 0 auto;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .screen { flex: 1; display: flex; flex-direction: column; }
+
+  /* Rótulos: Bricolage estrecha y negra; «pegatina» = blanco con contorno y sombra de tinta */
+  .titular { font-family: var(--display); font-weight: 800; font-stretch: 75%; }
+  .pegatina {
+    font-family: var(--display); font-weight: 800; font-stretch: 75%;
+    color: #FFFFFF; -webkit-text-stroke: .068em var(--ink); paint-order: stroke fill;
+    text-shadow: .045em .055em 0 var(--ink);
+    line-height: 1.02; margin: 0; overflow-wrap: anywhere;
+  }
+
+  /* ——— Barra superior ——— */
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+  .top-label { font-weight: 700; font-size: 16px; }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 14px;
+    border: var(--borde); background: var(--surface); color: var(--ink);
+    display: grid; place-items: center; flex: none;
+    transition: background-color .15s ease, transform .08s ease;
+  }
+  .icon-btn svg { width: 20px; height: 20px; }
+
+  /* ——— Botones ——— */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; min-height: 62px; padding: 14px 22px;
+    border: var(--borde); border-radius: 20px;
+    background: var(--ink); color: #FFFFFF;
+    font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 22px; line-height: 1.15;
+    text-decoration: none; text-align: center;
+    box-shadow: 0 5px 0 #000000;
+    transition: background-color .15s ease, transform .08s ease, box-shadow .08s ease;
+  }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn.sec { background: var(--surface); color: var(--ink); box-shadow: none; font-weight: 700; font-stretch: 100%; font-size: 18px; min-height: 56px; }
+  .btn.azul { background: var(--azul); color: var(--ink); box-shadow: 0 5px 0 var(--ink); }
+  .btn.rojo { background: var(--rojo); color: #FFFFFF; box-shadow: 0 5px 0 var(--ink); }
+  .btn.small { min-height: 50px; font-size: 17px; padding: 10px 16px; box-shadow: none; }
+  .btn[disabled] { opacity: .55; cursor: default; }
+  .btn:active:not([disabled]) { transform: translateY(3px); box-shadow: 0 2px 0 #000000; }
+  .btn.sec:active:not([disabled]), .btn.small:active:not([disabled]) { transform: translateY(2px); box-shadow: none; }
+  .icon-btn:active, .chip:active, .who-list button:active, .tema:active { transform: scale(.96); }
+
+  .link {
+    background: none; border: 0; padding: 10px 2px; color: var(--ink);
+    font-weight: 700; font-size: 15px; text-decoration: underline; text-underline-offset: 4px;
+    text-decoration-thickness: 2px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px; align-self: center;
+    background: var(--surface); border: var(--borde); border-radius: 999px;
+    padding: 8px 16px; font-weight: 700; font-size: 15px; color: var(--ink);
+    transition: background-color .15s ease, transform .08s ease;
+  }
+  .chip svg { width: 16px; height: 16px; }
+
+  /* Solo en ordenador (ratón): el hover nunca cambia el color del texto */
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover:not([disabled]) { background: #000000; }
+    .btn.sec:hover:not([disabled]), .icon-btn:hover, .chip:hover, .who-list button:hover { background: var(--soft); }
+    .btn.azul:hover:not([disabled]) { background: #6EAEDF; }
+    .btn.rojo:hover:not([disabled]) { background: #A91F26; }
+    .link:hover { text-decoration-thickness: 3px; }
+  }
+
+  /* ——— Tarjetas ——— */
+  .card { background: var(--surface); border: var(--borde); border-radius: var(--r-lg); box-shadow: var(--sombra); padding: 18px 20px 20px; }
+
+  /* ——— ¿Ha comido? ——— */
+  .pet-name { text-align: center; margin: 12px 0 0; overflow-wrap: normal; word-break: keep-all; hyphens: none; }
+  .bol { display: flex; justify-content: center; margin: 12px 0 0; }
+  .bol svg { display: block; width: min(72vw, 280px); height: auto; overflow: visible; }
+  .bol.pop .comida { animation: caer .5s cubic-bezier(.3, 1.4, .5, 1); }
+  @keyframes caer { from { transform: translateY(-26px); opacity: 0; } }
+  .status { margin-top: 14px; }
+  .status-title { font-size: 36px; line-height: 1; margin: 0; }
+  .status-detail { margin: 6px 0 0; font-size: 17px; }
+  .barra { margin-top: 16px; height: 22px; border: var(--borde); border-radius: 999px; overflow: hidden; background: var(--soft); }
+  .barra-fill { height: 100%; border-right: var(--borde); background: var(--amarillo); transition: width .8s ease; }
+  .barra-fill.lleno { border-right: 0; }
+  .state-fed .barra-fill { background: #9CCB8B; }
+  .status.aviso { background: #9CCB8B; }
+  .status.aviso.sobre-verde { background: var(--surface); }
+  .status-cuando { margin: 10px 0 0; font-size: 19px; font-weight: 800; }
+  .status.aviso .status-detail { font-size: 15px; font-weight: 600; margin-top: 4px; }
+  .state-hungry .bol svg { animation: pedir 3.2s ease-in-out infinite; transform-origin: 50% 85%; }
+  @keyframes pedir { 0%, 78%, 100% { transform: rotate(0); } 82% { transform: rotate(-3deg); } 87% { transform: rotate(3deg); } 92% { transform: rotate(-2deg); } 96% { transform: rotate(1deg); } }
+  .barra-txt { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 15px; font-weight: 600; }
+  .actions { display: grid; gap: 12px; margin-top: 22px; }
+  .actions .chip { justify-self: center; }
+  .foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .foot-me { font-size: 15px; font-weight: 600; }
+
+  .who-title { font-size: 44px; margin: 22px 0 6px; }
+  .who-list { display: grid; gap: 12px; margin-top: 20px; }
+  .who-list button {
+    text-align: left; padding: 16px 20px; border-radius: 18px;
+    border: var(--borde); background: var(--surface); box-shadow: var(--sombra);
+    font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 26px;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background-color .15s ease, transform .08s ease;
+  }
+  .who-list button svg { width: 22px; height: 22px; }
+
+  .confirm { background: var(--surface); border: var(--borde); border-radius: var(--r-lg); padding: 18px; }
+  .confirm p { margin: 0 0 14px; font-weight: 600; }
+  .confirm .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .sheet-back { position: fixed; inset: 0; background: rgba(42, 31, 61, .45); display: flex; align-items: flex-end; justify-content: center; z-index: 20; animation: fade .18s ease; }
+  .sheet {
+    background: var(--surface); width: 100%; max-width: 460px; max-height: 82vh; overflow: auto;
+    border: var(--borde); border-bottom: 0; border-radius: 24px 24px 0 0;
+    padding: 14px max(20px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    animation: up .22s ease;
+  }
+  .sheet .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--ink); opacity: .3; margin: 0 auto 14px; }
+  .sheet h2 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 30px; margin: 0 0 4px; }
+  .day { font-weight: 800; font-size: 15px; margin: 18px 0 4px; }
+  .ev { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1.5px solid #DDD6E8; font-weight: 600; }
+  .ev time { color: var(--muted-on-white); font-variant-numeric: tabular-nums; }
+  @keyframes fade { from { opacity: 0; } }
+  @keyframes up { from { transform: translateY(40px); opacity: .4; } }
+
+  /* ——— Formularios ——— */
+  .setup-kicker { font-weight: 700; margin: 14px 0 2px; }
+  .setup-title { font-size: 40px; line-height: 1.02; margin: 0; }
+  .intro { margin: 10px 0 0; }
+  form { display: grid; gap: 22px; margin-top: 22px; }
+  label.f, .f { display: grid; gap: 8px; font-weight: 800; font-size: 16px; }
+  .f .hint { font-weight: 500; font-size: 14px; }
+  input[type=text], input[type=url], input[type=tel], input[type=password], input[type=time], textarea, select {
+    width: 100%; border: var(--borde); background: var(--surface); border-radius: var(--r-md);
+    padding: 13px 16px; font-size: 17px; font-weight: 500; outline: none;
+    transition: box-shadow .15s ease;
+  }
+  input::placeholder, textarea::placeholder { color: #8E84A0; }
+  input:focus, textarea:focus, select:focus { box-shadow: 3px 4px 0 var(--ink); }
+  textarea { min-height: 120px; resize: vertical; line-height: 1.45; }
+  .people { display: grid; gap: 8px; }
+  .people .p-row { display: flex; gap: 8px; }
+  .people .p-row input { flex: 1; min-width: 0; }
+  .people .p-row button { width: 52px; flex: none; border: var(--borde); border-radius: var(--r-md); background: var(--surface); font-size: 22px; font-weight: 700; }
+  .add-person { justify-self: start; }
+  .horas .p-row input { font-weight: 700; font-size: 20px; padding: 10px 16px; }
+  .horas .p-row input::-webkit-calendar-picker-indicator { opacity: .6; }
+  .temas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tema {
+    width: 46px; height: 46px; border-radius: 14px; border: var(--borde); padding: 0;
+    display: grid; place-items: center; transition: transform .08s ease, box-shadow .15s ease;
+  }
+  .tema span { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ink); display: block; }
+  .tema[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5.5px var(--ink); }
+  .pin-input { letter-spacing: .6em; font-family: var(--legible); font-weight: 700; font-size: 26px !important; text-align: center; }
+  .err { color: var(--danger); font-weight: 800; font-size: 15px; min-height: 1.4em; margin: 0; background: none; }
+  .err:not(:empty) { background: var(--surface); border: 2px solid var(--danger); border-radius: 12px; padding: 8px 12px; }
+  .form-actions { display: grid; gap: 12px; }
+  .privacidad { margin: 4px 0 0; font-size: 14px; font-weight: 500; }
+
+  /* ——— Estados generales ——— */
+  .center { flex: 1; display: grid; place-items: center; text-align: center; }
+  .center h2 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 32px; margin: 0 0 8px; }
+  .center p { margin: 0 auto 20px; max-width: 30ch; }
+  .pulse { width: 120px; height: 120px; border-radius: 50%; background: var(--surface); border: var(--borde); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .45; } }
+  .brand { font-weight: 700; font-size: 15px; text-align: center; margin: 22px 0 0; }
+  .brand a { text-decoration: none; }
+
+  .demo-title { font-size: 52px; margin: 14px 0 8px; }
+  .toast {
+    position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translate(-50%, 40px);
+    background: var(--ink); color: #FFFFFF; padding: 12px 20px; border-radius: 999px; font-weight: 700;
+    opacity: 0; transition: opacity .25s ease, transform .25s ease; pointer-events: none; z-index: 30; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  dialog { border: var(--borde); border-radius: var(--r-lg); box-shadow: var(--sombra); padding: 22px; width: min(90vw, 360px); background: var(--surface); color: var(--ink); }
+  dialog::backdrop { background: rgba(42, 31, 61, .45); }
+  dialog h2 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 30px; margin: 0 0 6px; }
+  dialog p { margin: 0; }
+  dialog form { margin-top: 14px; gap: 12px; }
+  dialog .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="pinDlg" aria-labelledby="pinTitle">
+  <h2 id="pinTitle"></h2>
+  <p class="intro" id="pinHelp"></p>
+  <form method="dialog" id="pinForm">
+    <input class="pin-input" id="pinInput" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required>
+    <p class="err" id="pinErr"></p>
+    <div class="row"><button type="button" class="btn sec small" id="pinCancel"></button><button class="btn small" id="pinOk"></button></div>
+  </form>
+</dialog>
+
+<script>
+/* ══════════ Configuración ══════════ */
+// Pega aquí la URL de tu Apps Script (termina en /exec).
+const API = 'https://script.google.com/macros/s/AKfycbyePtpCj8rzdC5AjY-BlKFn-3LHGVC_cfaypg2zsxK366cskeu8NdJ4hy85wHnA8s5m/exec';
+const TIENDA = 'https://www.etsy.com/es/shop/Nexa3DStudio';
+
+/* ══════════ Textos ══════════ */
+const TXT = {
+  es: {
+    loading: 'Cargando…',
+    errNet: 'No se ha podido conectar. Comprueba tu conexión y vuelve a intentarlo.',
+    retry: 'Reintentar',
+    notFound: 'Esta pieza no está registrada',
+    notFoundBody: 'Escríbenos por Etsy indicando el código que aparece en la dirección y lo solucionamos.',
+    toShop: 'Ir a la tienda',
+    landing: 'Piezas impresas en 3D que hacen algo cuando acercas el móvil.',
+    settings: 'Ajustes',
+    save: 'Guardar',
+    saveStart: 'Guardar y empezar',
+    saving: 'Guardando…',
+    cancel: 'Cancelar',
+    close: 'Cerrar',
+    enter: 'Entrar',
+    pinTitle: 'Introduce el PIN',
+    pinHelp: 'Es el PIN de 4 cifras que elegiste al configurar la pieza.',
+    pinWrong: 'PIN incorrecto.',
+    pinNew: 'PIN de 4 cifras',
+    pinNewHint: 'Te lo pediremos solo para cambiar estos ajustes.',
+    pinChange: 'Nuevo PIN (opcional)',
+    pinChangeHint: 'Déjalo vacío para mantener el actual.',
+    pinFormat: 'El PIN tiene que tener 4 cifras.',
+    dataErr: 'Revisa los campos marcados.',
+    saved: 'Guardado',
+    copied: 'Copiado',
+    // ¿Ha comido?
+    pSetupTitle: 'Configura tu placa',
+    pSetupIntro: 'Solo se hace una vez. Después, cualquiera de casa acerca el móvil y ve si ya ha comido.',
+    privacy: 'Guardamos el nombre de tu mascota, los nombres que pongas aquí y las horas a las que come, solo para que funcione esta placa. No usamos estos datos para nada más. Si quieres borrarlos, escríbenos por Etsy.',
+    petName: 'Nombre de tu mascota',
+    people: '¿Quién le da de comer?',
+    peopleHint: 'Cada persona elegirá su nombre la primera vez que acerque su móvil.',
+    addPerson: 'Añadir persona',
+    personPh: 'Nombre',
+    meals: '¿A qué horas come?',
+    whoTitle: '¿Quién eres?',
+    whoBody: 'Solo te lo preguntamos esta vez.',
+    hungry: 'Le toca comer',
+    lastBy: 'La última se la dio {name} {when}.',
+    fedBy: 'Se la dio {name} {when}.',
+    left: 'Podrá comer en {d}',
+    canEatSince: 'Ya puede comer desde las {t}.',
+    lastShort: 'La última se la dio {name} {when}.',
+    isTime: 'Ya es la hora',
+    tomorrowShort: 'mañana, {t}',
+    barLabel: 'Tiempo hasta la próxima comida',
+    bowlFull: 'Bol lleno',
+    bowlEmpty: 'Bol vacío',
+    colorLabel: 'Color de la pantalla',
+    colorHint: 'Elige el que más se parezca a tu placa.',
+    tema_lila: 'Lila', tema_azul: 'Azul', tema_amarillo: 'Amarillo', tema_rosa: 'Rosa', tema_verde: 'Verde', tema_arena: 'Arena',
+    fed: 'Ya ha comido',
+    never: 'Todavía no hay ninguna comida apuntada.',
+    feedBtn: 'Le doy de comer',
+    petLabel: '¿Ha comido?',
+    copiedPass: 'Contraseña copiada',
+    listenOn: 'Escuchar en {p}',
+    wifiWord: 'WiFi',
+    feedAgain: 'Apuntar otra comida',
+    feedAgainQ: '{pet} ya ha comido {when}. ¿Apuntar otra comida?',
+    feedAgainYes: 'Sí, apuntar',
+    fedToast: 'Apuntado',
+    undo: 'Deshacer',
+    undone: 'Deshecho',
+    history: 'Historial',
+    historyTitle: 'Últimas comidas',
+    iam: 'Soy {name}',
+    change: 'Cambiar',
+    ago_now: 'ahora mismo',
+    ago_min: 'hace {n} min',
+    ago_h: 'hace {n} h',
+    yesterday: 'ayer a las {t}',
+    at: 'a las {t}',
+    on: 'el {d} a las {t}',
+    by: 'por {name}',
+    today: 'Hoy',
+    yest: 'Ayer',
+    nextMeal: 'Próxima comida {when}',
+    mealOf: 'Comida de las {t}',
+    atTime: 'a las {t}',
+    tomorrowAt: 'mañana a las {t}',
+    addMeal: 'Añadir comida',
+    removeMeal: 'Quitar esta comida',
+    mealsHint: 'A partir de cada una de estas horas, la pantalla avisa de que ya puede volver a comer.',
+    mealsErr: 'Pon al menos una hora de comida.',
+    // Wi-Fi
+    wSetupTitle: 'Configura tu placa',
+    wSetupIntro: 'Tus invitados verán estos datos al acercar el móvil. Puedes cambiarlos cuando quieras.',
+    place: 'Nombre del sitio',
+    placeHint: 'Por ejemplo, «Casa Rural El Olivo». Opcional.',
+    ssid: 'Nombre de la red (SSID)',
+    pass: 'Contraseña',
+    passHint: 'Déjala vacía si la red es abierta.',
+    welcome: 'Mensaje de bienvenida',
+    welcomeHint: 'Opcional.',
+    info: 'Información para los invitados',
+    infoHint: 'Horarios, normas, recomendaciones… Opcional.',
+    contact: 'Teléfono de contacto (WhatsApp)',
+    contactHint: 'Con prefijo, por ejemplo +34 600 000 000. Opcional.',
+    wDefault: 'Wi-Fi',
+    network: 'Red',
+    password: 'Contraseña',
+    open: 'Red abierta, sin contraseña',
+    copyPass: 'Copiar contraseña',
+    copyNet: 'Copiar nombre',
+    howTitle: 'Cómo conectarte',
+    howIos: ['Copia la contraseña.', 'Abre Ajustes → Wi-Fi y toca «{ssid}».', 'Pega la contraseña y pulsa Conectarse.'],
+    howAndroid: ['Copia la contraseña.', 'Abre Ajustes → Wi-Fi y toca «{ssid}».', 'Pega la contraseña y pulsa Conectar.'],
+    qrText: '¿Otro dispositivo? Escanea este código con la cámara para conectarte.',
+    infoTitle: 'Información',
+    whatsapp: 'Escribir por WhatsApp',
+    // Vinilo
+    mSetupTitle: 'Configura tu vinilo',
+    mSetupIntro: 'Elige la canción que sonará al acercar el móvil. Puedes cambiarla cuando quieras.',
+    songLink: 'Enlace de la canción',
+    songHint: 'Spotify, YouTube, Apple Music… Copia el enlace con «Compartir → Copiar enlace».',
+    to: 'Para',
+    from: 'De',
+    message: 'Dedicatoria',
+    optional: 'Opcional.',
+    paraX: 'Para {name}',
+    deX: 'De {name}',
+    play: 'Escuchar',
+    linkErr: 'Pega un enlace que empiece por https://'
+  },
+  en: {
+    loading: 'Loading…',
+    errNet: 'Couldn’t connect. Check your connection and try again.',
+    retry: 'Try again',
+    notFound: 'This piece isn’t registered',
+    notFoundBody: 'Message us on Etsy with the code shown in the address and we’ll fix it.',
+    toShop: 'Visit the shop',
+    landing: '3D printed pieces that do something when you tap your phone.',
+    settings: 'Settings',
+    save: 'Save',
+    saveStart: 'Save and start',
+    saving: 'Saving…',
+    cancel: 'Cancel',
+    close: 'Close',
+    enter: 'Continue',
+    pinTitle: 'Enter your PIN',
+    pinHelp: 'The 4-digit PIN you chose when you set up this piece.',
+    pinWrong: 'Wrong PIN.',
+    pinNew: '4-digit PIN',
+    pinNewHint: 'We’ll only ask for it to change these settings.',
+    pinChange: 'New PIN (optional)',
+    pinChangeHint: 'Leave empty to keep the current one.',
+    pinFormat: 'The PIN must be 4 digits.',
+    dataErr: 'Check the highlighted fields.',
+    saved: 'Saved',
+    copied: 'Copied',
+    pSetupTitle: 'Set up your plate',
+    pSetupIntro: 'You only do this once. After that, anyone at home taps their phone to see if your pet has eaten.',
+    privacy: 'We store your pet’s name, the names you enter here and feeding times only so this plate works. We don’t use them for anything else. To delete them, message us on Etsy.',
+    petName: 'Your pet’s name',
+    people: 'Who feeds them?',
+    peopleHint: 'Each person picks their name the first time they tap.',
+    addPerson: 'Add person',
+    personPh: 'Name',
+    meals: 'What times does it eat?',
+    whoTitle: 'Who are you?',
+    whoBody: 'We’ll only ask this once.',
+    hungry: 'Time to eat',
+    lastBy: 'Last fed by {name} {when}.',
+    fedBy: 'Fed by {name} {when}.',
+    left: 'Can eat in {d}',
+    canEatSince: 'It can eat again since {t}.',
+    lastShort: 'Last fed by {name} {when}.',
+    isTime: 'It’s time',
+    tomorrowShort: 'tomorrow, {t}',
+    barLabel: 'Time until the next meal',
+    bowlFull: 'Full bowl',
+    bowlEmpty: 'Empty bowl',
+    colorLabel: 'Screen colour',
+    colorHint: 'Pick the one closest to your plate.',
+    tema_lila: 'Lilac', tema_azul: 'Blue', tema_amarillo: 'Yellow', tema_rosa: 'Pink', tema_verde: 'Green', tema_arena: 'Sand',
+    fed: 'Already fed',
+    never: 'No meals logged yet.',
+    feedBtn: 'I’m feeding them',
+    petLabel: 'Fed yet?',
+    copiedPass: 'Password copied',
+    listenOn: 'Listen on {p}',
+    wifiWord: 'WiFi',
+    feedAgain: 'Log another meal',
+    feedAgainQ: '{pet} was already fed {when}. Log another meal?',
+    feedAgainYes: 'Yes, log it',
+    fedToast: 'Logged',
+    undo: 'Undo',
+    undone: 'Undone',
+    history: 'History',
+    historyTitle: 'Recent meals',
+    iam: 'I’m {name}',
+    change: 'Change',
+    ago_now: 'just now',
+    ago_min: '{n} min ago',
+    ago_h: '{n} h ago',
+    yesterday: 'yesterday at {t}',
+    at: 'at {t}',
+    on: 'on {d} at {t}',
+    by: 'by {name}',
+    today: 'Today',
+    yest: 'Yesterday',
+    nextMeal: 'Next meal {when}',
+    mealOf: '{t} meal',
+    atTime: 'at {t}',
+    tomorrowAt: 'tomorrow at {t}',
+    addMeal: 'Add a meal',
+    removeMeal: 'Remove this meal',
+    mealsHint: 'From each of these times on, the screen shows that it can eat again.',
+    mealsErr: 'Add at least one meal time.',
+    wSetupTitle: 'Set up your plate',
+    wSetupIntro: 'Your guests will see this when they tap their phone. You can change it anytime.',
+    place: 'Place name',
+    placeHint: 'For example, “Olive Tree Cottage”. Optional.',
+    ssid: 'Network name (SSID)',
+    pass: 'Password',
+    passHint: 'Leave empty if the network is open.',
+    welcome: 'Welcome message',
+    welcomeHint: 'Optional.',
+    info: 'Information for guests',
+    infoHint: 'Check-out time, house rules, tips… Optional.',
+    contact: 'Contact phone (WhatsApp)',
+    contactHint: 'With country code, e.g. +34 600 000 000. Optional.',
+    wDefault: 'Wi-Fi',
+    network: 'Network',
+    password: 'Password',
+    open: 'Open network, no password',
+    copyPass: 'Copy password',
+    copyNet: 'Copy name',
+    howTitle: 'How to connect',
+    howIos: ['Copy the password.', 'Open Settings → Wi-Fi and tap “{ssid}”.', 'Paste the password and tap Join.'],
+    howAndroid: ['Copy the password.', 'Open Settings → Wi-Fi and tap “{ssid}”.', 'Paste the password and tap Connect.'],
+    qrText: 'Another device? Scan this code with its camera to connect.',
+    infoTitle: 'Information',
+    whatsapp: 'Message on WhatsApp',
+    mSetupTitle: 'Set up your record',
+    mSetupIntro: 'Choose the song that plays when someone taps their phone. You can change it anytime.',
+    songLink: 'Song link',
+    songHint: 'Spotify, YouTube, Apple Music… Use “Share → Copy link”.',
+    to: 'To',
+    from: 'From',
+    message: 'Message',
+    optional: 'Optional.',
+    paraX: 'For {name}',
+    deX: 'From {name}',
+    play: 'Listen',
+    linkErr: 'Paste a link that starts with https://'
+  }
+};
+const LANG = (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en';
+document.documentElement.lang = LANG;
+function t(key, vars) {
+  let s = (TXT[LANG][key] !== undefined ? TXT[LANG][key] : TXT.es[key]);
+  if (typeof s === 'string' && vars) s = s.replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : '');
+  return s;
+}
+
+/* ══════════ Utilidades DOM ══════════ */
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'html') el.innerHTML = v; // solo para SVG estáticos propios
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid === null || kid === undefined || kid === false) continue;
+    el.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+  return el;
+}
+const $app = document.getElementById('app');
+function mount(...nodes) { $app.replaceChildren(...nodes); window.scrollTo(0, 0); }
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+const ICON = {
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>',
+  undo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>',
+  wifi: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.8 12.6a9.2 9.2 0 0 1 12.4 0"/><path d="M9.1 16.1a4.6 4.6 0 0 1 5.8 0"/><circle cx="12" cy="19.4" r="1.3" fill="currentColor" stroke="none"/></svg>'
+};
+function gearBtn() { return h('button', { class: 'icon-btn', 'aria-label': t('settings'), title: t('settings'), onclick: openSettings, html: ICON.gear }); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+/* ══════════ Colores ══════════ */
+/* Temas de ¿Ha comido?: fondo de la pantalla y color del bol, a juego con los filamentos */
+const TEMAS = {
+  lila:     { suelo: '#C9B6EF', bol: '#E4372E' },
+  azul:     { suelo: '#86BCE6', bol: '#F4C430' },
+  amarillo: { suelo: '#F4C430', bol: '#2F6FB0' },
+  rosa:     { suelo: '#F4B6C8', bol: '#E4372E' },
+  verde:    { suelo: '#9CCB8B', bol: '#F4C430' },
+  arena:    { suelo: '#E8D3AE', bol: '#8A5A3A' }
+};
+const temaDe = cfg => TEMAS[cfg && cfg.tema] || TEMAS.lila;
+function ponerSuelo(c) {
+  document.documentElement.style.setProperty('--suelo', c);
+  const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', c);
+}
+function mezcla(hex, otro, k) {
+  const p = x => [1, 3, 5].map(i => parseInt(x.slice(i, i + 2), 16));
+  const a = p(hex), b = p(otro);
+  return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * k).toString(16).padStart(2, '0')).join('');
+}
+
+/* ══════════ Estado y API ══════════ */
+const params = new URLSearchParams(location.search);
+let K = (params.get('k') || '').toUpperCase();
+let S = null; // { tipo, configurado, config, eventos }
+
+async function api(action, payload = {}) {
+  if (action === 'leer') {
+    const r = await fetch(API + '?action=leer&k=' + encodeURIComponent(K), { cache: 'no-store' });
+    return r.json();
+  }
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, k: K }, payload)) });
+  return r.json();
+}
+
+async function cargar() {
+  if (!K) return renderLanding();
+  if (!API) return renderSinServidor();
+  renderLoading();
+  try {
+    const r = await api('leer');
+    if (!r.ok) return r.error === 'no_existe' ? renderNotFound() : renderNetErr();
+    S = r;
+    render();
+  } catch (_) { renderNetErr(); }
+}
+
+function render() {
+  if (S.tipo !== 'P') return renderNotFound();   // por ahora solo ¿Ha comido?
+  document.body.className = 'pet';
+  ponerSuelo(temaDe(S.config).suelo);
+  if (!S.configurado) return renderSetup(false);
+  return renderPet();
+}
+
+/* ══════════ Pantallas generales ══════════ */
+function brand() {
+  return h('p', { class: 'brand' }, h('a', { href: TIENDA, target: '_blank', rel: 'noopener' }, 'Nexa3D Studio'));
+}
+function renderSinServidor() {
+  mount(h('div', { class: 'center' }, h('div', null,
+    h('h2', null, 'Falta conectar el servidor'),
+    h('p', null, 'Pega la URL de Apps Script en la constante API de index.html.'))));
+}
+function renderLoading() { mount(h('div', { class: 'center' }, h('div', { class: 'pulse', role: 'img', 'aria-label': t('loading') }))); }
+function renderNetErr() {
+  mount(h('div', { class: 'center' }, h('div', null,
+    h('p', null, t('errNet')),
+    h('button', { class: 'btn', onclick: cargar }, t('retry')))));
+}
+function renderNotFound() {
+  mount(h('div', { class: 'center' }, h('div', null,
+    h('h2', null, t('notFound')), h('p', null, t('notFoundBody')),
+    h('a', { class: 'btn sec', href: TIENDA }, t('toShop')))), brand());
+}
+function renderLanding() {
+  ponerSuelo(TEMAS.lila.suelo);
+  mount(h('div', { class: 'center' }, h('div', null,
+    h('h1', { class: 'pegatina demo-title' }, 'Nexa3D Studio'),
+    h('p', null, t('landing')),
+    h('a', { class: 'btn', href: TIENDA }, t('toShop')))));
+}
+
+/* ══════════ ¿Ha comido? ══════════ */
+/* Horas de comida. Cada comida «cubre» desde el punto medio con la anterior hasta el punto medio con la siguiente,
+   así una comida dada un poco antes o después de su hora cuenta para esa comida y no se repite.
+   Cada hora es el momento a partir del cual ya puede volver a comer: desde ahí sale «Le toca comer».
+   La barra verde va desde la última comida hasta esa hora. */
+const MAX_COMIDAS = 8;
+const ADELANTO = 60; // una comida dada hasta 60 min antes de una hora cuenta ya para esa hora
+const aMin = x => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(x || '')); return m && +m[1] < 24 && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
+const hora = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+function horasPorDefecto(n) {
+  n = Math.min(Math.max(Math.round(Number(n)) || 2, 1), MAX_COMIDAS);
+  if (n === 1) return [9 * 60];
+  if (n === 2) return [8 * 60, 20 * 60];
+  if (n === 3) return [8 * 60, 14 * 60, 21 * 60];
+  const ini = 8 * 60, fin = 21 * 60, out = [];
+  for (let i = 0; i < n; i++) out.push(Math.round((ini + (fin - ini) * i / (n - 1)) / 15) * 15);
+  return out;
+}
+function horasDe(cfg) {
+  const hs = (Array.isArray(cfg.horas) ? cfg.horas : []).map(aMin).filter(x => x !== null);
+  const u = [...new Set(hs)].sort((a, b) => a - b).slice(0, MAX_COMIDAS);
+  return u.length ? u : horasPorDefecto(cfg.comidas);
+}
+function estadoComida(now, horas, eventos) {
+  // T: las horas de comida de anteayer a pasado mañana, en orden
+  const T = [], base = new Date(now); base.setHours(0, 0, 0, 0);
+  for (let d = -2; d <= 2; d++) for (const m of horas) { const x = new Date(base); x.setDate(base.getDate() + d); x.setMinutes(m); T.push(x.getTime()); }
+  T.sort((a, b) => a - b);
+  // Una comida cuenta para la hora que ya ha empezado; si se da poco antes de la siguiente (hasta 1 h, o media distancia entre horas), cuenta para esa siguiente
+  const margen = i => Math.min(ADELANTO * 60000, (T[i] - T[i - 1]) / 2);
+  const desde = i => T[i] - margen(i), t0 = now.getTime();
+  let k = 1; while (k + 1 < T.length - 1 && desde(k + 1) <= t0) k++;
+  const ultima = i => { let f = 0; (eventos || []).forEach(e => { const x = new Date(e.fecha).getTime(); if (x >= desde(i) && x < desde(i + 1) && x > f) f = x; }); return f; };
+  const dadaK = ultima(k);
+  if (dadaK) return { fed: true, cuando: new Date(T[k + 1]), previa: new Date(dadaK) };
+  if (t0 >= T[k]) return { fed: false, cuando: new Date(T[k]) };
+  const dadaAnt = ultima(k - 1);   // aún no es la hora de la comida k
+  if (dadaAnt) return { fed: true, cuando: new Date(T[k]), previa: new Date(dadaAnt) };
+  return { fed: false, cuando: new Date(T[k - 1]) };   // se saltaron la anterior: puede comer desde entonces
+}
+function cuandoTexto(d, now) {
+  if (sameDay(d, now)) return t('atTime', { t: hm(d) });
+  const m = new Date(now); m.setDate(now.getDate() + 1);
+  return sameDay(d, m) ? t('tomorrowAt', { t: hm(d) }) : t('atTime', { t: hm(d) });
+}
+const pad = n => String(n).padStart(2, '0');
+const hm = d => pad(d.getHours()) + ':' + pad(d.getMinutes());
+function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+function ago(iso) {
+  const d = new Date(iso), now = new Date(), min = Math.round((now - d) / 60000);
+  if (min < 1) return t('ago_now');
+  if (min < 60) return t('ago_min', { n: min });
+  if (sameDay(d, now) && min < 6 * 60) return t('ago_h', { n: Math.round(min / 60) });
+  if (sameDay(d, now)) return t('at', { t: hm(d) });
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (sameDay(d, y)) return t('yesterday', { t: hm(d) });
+  return t('on', { d: d.toLocaleDateString(LANG, { day: 'numeric', month: 'short' }), t: hm(d) });
+}
+const meKey = () => 'n3d.persona.' + K;
+function getMe() { try { const v = localStorage.getItem(meKey()); return S.config.personas.includes(v) ? v : null; } catch (_) { return null; } }
+function setMe(v) { try { v ? localStorage.setItem(meKey(), v) : localStorage.removeItem(meKey()); } catch (_) {} }
+let lastMine = null; // fecha de la última comida apuntada desde este móvil (para deshacer)
+
+/* El bol: lleno de huesitos si ya ha comido, vacío si le toca. Los tonos salen del color del tema. */
+let bolN = 0;
+const HUESOS = [[76,66,10,0],[204,64,20,1],[122,36,40,1],[154,32,-35,0],[88,54,-20,1],[114,48,15,0],[140,44,-8,2],[168,48,25,1],[192,54,-15,0],[102,66,30,2],[130,62,-25,1],[158,64,10,0],[182,68,-30,2],[140,56,70,0]];
+function bolSvg(base, lleno) {
+  const id = 'hueso' + (++bolN);
+  const claro = mezcla(base, '#FFFFFF', .22), oscuro = mezcla(base, '#000000', .22), interior = mezcla(base, '#000000', .45);
+  const cols = ['#D98A3A', '#B5652F', '#8C4A2A'];
+  const huesos = HUESOS.map(([x, y, r, c]) => '<use href="#' + id + '" transform="translate(' + x + ' ' + y + ') rotate(' + r + ')" fill="' + cols[c] + '"/>').join('');
+  return '<svg viewBox="0 0 280 178" aria-hidden="true">' +
+    '<defs><g id="' + id + '"><circle cx="-14" cy="-4.5" r="6"/><circle cx="-14" cy="4.5" r="6"/><circle cx="14" cy="-4.5" r="6"/><circle cx="14" cy="4.5" r="6"/><rect x="-15" y="-5" width="30" height="10"/></g></defs>' +
+    '<ellipse cx="124" cy="150" rx="134" ry="16" fill="#2A1F3D" opacity=".16"/>' +
+    '<path d="M36 58 L12 138 Q140 172 268 138 L244 58 A104 24 0 0 1 36 58 Z" fill="' + base + '"/>' +
+    '<path d="M36 58 L12 138 Q28 143 44 147 L60 73 Q44 67 36 58 Z" fill="' + oscuro + '" opacity=".6"/>' +
+    '<path d="M244 58 L268 138 Q252 143 236 147 L220 73 Q236 67 244 58 Z" fill="' + oscuro + '" opacity=".6"/>' +
+    '<path d="M14 131 Q140 164 266 131 L268 138 Q140 172 12 138 Z" fill="' + oscuro + '"/>' +
+    '<path d="M64 92 Q140 107 216 92 L226 122 Q140 140 54 122 Z" fill="' + claro + '"/>' +
+    '<g fill="#FFFFFF" transform="translate(140 113)"><ellipse cx="0" cy="4" rx="9.5" ry="7.5"/><ellipse cx="-11" cy="-5" rx="3.6" ry="4.6"/><ellipse cx="-4" cy="-10" rx="3.6" ry="4.8"/><ellipse cx="4" cy="-10" rx="3.6" ry="4.8"/><ellipse cx="11" cy="-5" rx="3.6" ry="4.6"/></g>' +
+    '<ellipse cx="140" cy="58" rx="104" ry="24" fill="' + claro + '"/>' +
+    '<ellipse cx="140" cy="60" rx="90" ry="18" fill="' + interior + '"/>' +
+    '<ellipse cx="140" cy="65" rx="72" ry="11" fill="' + oscuro + '"/>' +
+    (lleno ? '<g class="comida"><ellipse cx="140" cy="60" rx="88" ry="16" fill="#7A3F22"/>' + huesos + '</g>' : '') +
+    '<path d="M36 58 A104 24 0 0 0 244 58 L230 60 A90 18 0 0 1 50 60 Z" fill="' + claro + '"/>' +
+    '</svg>';
+}
+/* El nombre de la mascota, tan grande como quepa en una línea */
+function tamNombre(n) {
+  const ancho = Math.min(window.innerWidth || 390, 460) - 44;
+  return Math.max(40, Math.min(92, Math.floor(ancho / (Math.max(String(n).length, 1) * 0.5))));
+}
+function duracion(ms) {
+  const min = Math.max(1, Math.ceil(Math.abs(ms) / 60000)), hh = Math.floor(min / 60), mm = min % 60;
+  return hh ? (mm ? hh + ' h ' + mm + ' min' : hh + ' h') : mm + ' min';
+}
+/* Si con la letra real el nombre no cabe, se reduce hasta que quepa entero (nunca se parte una palabra) */
+function ajustarNombre(el) {
+  if (!el) return;
+  const encajar = () => {
+    let px = parseFloat(el.style.fontSize) || 80;
+    while (px > 30 && el.scrollWidth > el.clientWidth + 1) { px -= 2; el.style.fontSize = px + 'px'; }
+  };
+  encajar();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(encajar);
+}
+function faltaTexto(ms) { return ms <= 0 ? t('isTime') : t('left', { d: duracion(ms) }); }
+function horaCorta(d, now) { return sameDay(d, now) ? hm(d) : t('tomorrowShort', { t: hm(d) }); }
+
+let petTimer = null;
+function renderPet() {
+  const cfg = S.config;
+  const me = getMe();
+  if (!me) return renderWho();
+  const tema = temaDe(cfg); ponerSuelo(tema.suelo);
+  const now = new Date();
+  const last = S.eventos && S.eventos[0];
+  const est = estadoComida(now, horasDe(cfg), S.eventos);
+  const fed = est.fed;
+  const canUndo = lastMine && last && last.fecha === lastMine && (Date.now() - new Date(lastMine)) < 15 * 60000;
+  const pct = Math.max(0, Math.min(100, (now - est.previa) / (est.cuando - est.previa) * 100));
+
+  const actions = h('div', { class: 'actions' });
+  if (!fed) actions.append(h('button', { class: 'btn', onclick: () => feed() }, t('feedBtn')));
+  else actions.append(h('button', { class: 'btn sec', onclick: () => askAgain(actions, last) }, t('feedAgain')));
+  if (canUndo) actions.append(h('button', { class: 'chip', onclick: undo, html: ICON.undo + '<span>' + esc(t('undo')) + '</span>' }));
+
+  const detalle = !last ? t('never') : t(fed ? 'fedBy' : 'lastShort', { name: last.persona, when: ago(last.fecha) });
+  const falta = est.cuando - now;
+  const cuandoToca = t('canEatSince', { t: hm(est.cuando) });
+  const tarjeta = fed
+    ? h('section', { class: 'card status' },
+        h('h2', { class: 'titular status-title' }, t('fed')),
+        h('p', { class: 'status-detail' }, detalle),
+        h('div', { class: 'barra', role: 'progressbar', 'aria-label': t('barLabel'), 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(Math.round(pct)) },
+          h('div', { class: 'barra-fill' + (pct >= 99.5 ? ' lleno' : ''), style: 'width:' + pct.toFixed(1) + '%' })),
+        h('div', { class: 'barra-txt' }, h('span', { class: 'falta' }, faltaTexto(falta)), h('span', null, horaCorta(est.cuando, now))))
+    : h('section', { class: 'card status aviso' + (cfg.tema === 'verde' ? ' sobre-verde' : ''), role: 'status' },
+        h('h2', { class: 'titular status-title' }, t('hungry')),
+        h('p', { class: 'status-cuando' }, cuandoToca),
+        h('p', { class: 'status-detail' }, detalle));
+  const screen = h('div', { class: 'screen state-' + (fed ? 'fed' : 'hungry') },
+    h('div', { class: 'top' }, h('span', { class: 'top-label' }, t('petLabel')), gearBtn()),
+    h('h1', { class: 'pegatina pet-name', style: 'font-size:' + tamNombre(cfg.mascota) + 'px' }, cfg.mascota),
+    h('div', { class: 'bol' + (justFed ? ' pop' : ''), role: 'img', 'aria-label': fed ? t('bowlFull') : t('bowlEmpty'), html: bolSvg(tema.bol, fed) }),
+    tarjeta,
+    actions,
+    h('div', { class: 'foot' },
+      h('button', { class: 'link', onclick: openHistory }, t('history')),
+      h('span', { class: 'foot-me' }, t('iam', { name: me }) + '. ', h('button', { class: 'link', onclick: () => { setMe(null); renderPet(); } }, t('change')))));
+  mount(screen, brand());
+  ajustarNombre(screen.querySelector('.pet-name'));
+  justFed = false;
+  // cada minuto se actualizan la barra y el estado (si no hay nada abierto encima)
+  // cada 30 s avanzan la barra y el tiempo que falta; si cambia el estado, se repinta la pantalla
+  clearInterval(petTimer);
+  petTimer = setInterval(() => {
+    if (!S || S.tipo !== 'P' || !$app.querySelector('.pet-name')) return clearInterval(petTimer);
+    const ahora = new Date(), e = estadoComida(ahora, horasDe(S.config), S.eventos);
+    if (e.fed !== fed || +e.cuando !== +est.cuando) {
+      const abierto = document.querySelector('.sheet-back, .confirm') || document.getElementById('pinDlg').open;
+      if (!abierto) renderPet();
+      return;
+    }
+    if (!fed) return;
+    const p = Math.max(0, Math.min(100, (ahora - e.previa) / (e.cuando - e.previa) * 100));
+    const barra = $app.querySelector('.barra'), relleno = $app.querySelector('.barra-fill'), txt = $app.querySelector('.barra-txt .falta');
+    if (relleno) { relleno.style.width = p.toFixed(1) + '%'; relleno.classList.toggle('lleno', p >= 99.5); }
+    if (barra) barra.setAttribute('aria-valuenow', String(Math.round(p)));
+    if (txt) txt.textContent = faltaTexto(e.cuando - ahora);
+    const det = $app.querySelector('.status-detail'), ult = S.eventos && S.eventos[0];
+    if (det && ult) det.textContent = t('fedBy', { name: ult.persona, when: ago(ult.fecha) });
+  }, 30000);
+}
+let justFed = false;
+
+function renderWho() {
+  ponerSuelo(temaDe(S.config).suelo);
+  mount(h('div', { class: 'screen state-hungry' },
+    h('div', { class: 'top' }, h('span', { class: 'top-label' }, t('petLabel')), gearBtn()),
+    h('h1', { class: 'pegatina who-title' }, t('whoTitle')),
+    h('p', { class: 'intro', style: 'margin:0;font-weight:600' }, t('whoBody')),
+    h('div', { class: 'who-list' }, S.config.personas.map(p =>
+      h('button', { onclick: () => { setMe(p); renderPet(); } }, h('span', null, p), h('span', { html: ICON.chev }))))
+  ), brand());
+}
+
+function askAgain(container, last) {
+  container.replaceChildren(h('div', { class: 'confirm' },
+    h('p', null, t('feedAgainQ', { pet: S.config.mascota, when: ago(last.fecha) })),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn sec small', onclick: renderPet }, t('cancel')),
+      h('button', { class: 'btn small', onclick: () => feed() }, t('feedAgainYes')))));
+}
+
+async function feed() {
+  const btns = $app.querySelectorAll('button'); btns.forEach(b => b.disabled = true);
+  try {
+    const r = await api('comer', { persona: getMe() });
+    if (!r.ok) throw 0;
+    S.eventos = r.eventos; lastMine = r.eventos[0] && r.eventos[0].fecha; justFed = true;
+    if (navigator.vibrate) navigator.vibrate(30);
+    renderPet(); toast(t('fedToast'));
+  } catch (_) { btns.forEach(b => b.disabled = false); toast(t('errNet')); }
+}
+
+async function undo() {
+  try {
+    const r = await api('deshacer');
+    if (!r.ok) throw 0;
+    S.eventos = r.eventos; lastMine = null; renderPet(); toast(t('undone'));
+  } catch (_) { toast(t('errNet')); }
+}
+
+function openHistory() {
+  const list = h('div');
+  const evs = S.eventos || [];
+  if (!evs.length) list.append(h('p', { class: 'muted' }, t('never')));
+  let curDay = '';
+  const now = new Date(), y = new Date(now); y.setDate(now.getDate() - 1);
+  evs.forEach(ev => {
+    const d = new Date(ev.fecha);
+    const label = sameDay(d, now) ? t('today') : sameDay(d, y) ? t('yest') : d.toLocaleDateString(LANG, { weekday: 'long', day: 'numeric', month: 'long' });
+    if (label !== curDay) { curDay = label; list.append(h('div', { class: 'day' }, label.charAt(0).toUpperCase() + label.slice(1))); }
+    list.append(h('div', { class: 'ev' }, h('span', null, ev.persona), h('time', { datetime: ev.fecha }, hm(d))));
+  });
+  const back = h('div', { class: 'sheet-back', onclick: e => { if (e.target === back) back.remove(); } },
+    h('div', { class: 'sheet', role: 'dialog', 'aria-label': t('historyTitle') },
+      h('div', { class: 'grab' }), h('h2', null, t('historyTitle')), list,
+      h('button', { class: 'btn sec small', style: 'margin-top:18px', onclick: () => back.remove() }, t('close'))));
+  document.body.append(back);
+}
+
+/* ══════════ Configuración (primera vez y ajustes) ══════════ */
+let PIN_OK = null;
+function openSettings() {
+  const dlg = document.getElementById('pinDlg');
+  document.getElementById('pinTitle').textContent = t('pinTitle');
+  document.getElementById('pinHelp').textContent = t('pinHelp');
+  document.getElementById('pinCancel').textContent = t('cancel');
+  document.getElementById('pinOk').textContent = t('enter');
+  const inp = document.getElementById('pinInput'), err = document.getElementById('pinErr');
+  inp.value = ''; err.textContent = '';
+  dlg.showModal(); setTimeout(() => inp.focus(), 50);
+  document.getElementById('pinCancel').onclick = () => dlg.close();
+  document.getElementById('pinForm').onsubmit = async e => {
+    e.preventDefault();
+    if (!/^\d{4}$/.test(inp.value)) { err.textContent = t('pinFormat'); return; }
+    try {
+      const r = await api('pin', { pin: inp.value });
+      if (!r.ok) { err.textContent = t('pinWrong'); inp.select(); return; }
+      PIN_OK = inp.value; dlg.close(); renderSetup(true);
+    } catch (_) { err.textContent = t('errNet'); }
+  };
+}
+
+function field(label, input, hint) { return h('label', { class: 'f' }, label, input, hint ? h('span', { class: 'hint' }, hint) : null); }
+
+function renderSetup(isEdit) {
+  const c = (isEdit && S.config) || {};
+  const form = h('form', { novalidate: true });
+  const err = h('p', { class: 'err', role: 'alert' });
+  let collect;
+
+  if (S.tipo === 'P') {
+    const pet = h('input', { type: 'text', maxlength: 30, required: true, autocomplete: 'off', value: c.mascota || '' });
+    const people = h('div', { class: 'people' });
+    const addRow = (v = '') => {
+      const inp = h('input', { type: 'text', maxlength: 20, placeholder: t('personPh'), autocomplete: 'off', value: v });
+      const row = h('div', { class: 'p-row' }, inp, h('button', { type: 'button', 'aria-label': 'Quitar', title: 'Quitar', onclick: () => { if (people.children.length > 1) row.remove(); else inp.value = ''; } }, '×'));
+      people.append(row); return inp;
+    };
+    (c.personas && c.personas.length ? c.personas : ['', '']).forEach(v => addRow(v));
+    const horasBox = h('div', { class: 'people horas' });
+    const addMealBtn = h('button', { type: 'button', class: 'link add-person', onclick: () => { const i = addHora(); if (i) i.focus(); } }, '+ ' + t('addMeal'));
+    const actualizar = () => { addMealBtn.hidden = horasBox.children.length >= MAX_COMIDAS; };
+    const valores = () => [...horasBox.querySelectorAll('input')].map(i => aMin(i.value)).filter(x => x !== null);
+    const addHora = v => {
+      if (horasBox.children.length >= MAX_COMIDAS) return null;
+      if (v === undefined) {   // propone una hora de día: en medio del mayor hueco entre comidas
+        const hs = [...new Set(valores())].sort((a, b) => a - b);
+        if (!hs.length) v = 9 * 60;
+        else if (hs.length === 1) v = hs[0] + 360 <= 22 * 60 ? hs[0] + 360 : Math.max(hs[0] - 360, 7 * 60);
+        else { let mejor = -1;
+          for (let i = 1; i < hs.length; i++) if (hs[i] - hs[i - 1] > mejor) { mejor = hs[i] - hs[i - 1]; v = Math.round((hs[i - 1] + mejor / 2) / 15) * 15; } }
+      }
+      const inp = h('input', { type: 'time', step: 300, required: true, value: typeof v === 'number' ? hora(v) : v });
+      const row = h('div', { class: 'p-row' }, inp, h('button', { type: 'button', 'aria-label': t('removeMeal'), title: t('removeMeal'), onclick: () => { if (horasBox.children.length > 1) { row.remove(); actualizar(); } } }, '×'));
+      const despues = [...horasBox.children].find(r => (aMin(r.querySelector('input').value) ?? 1e9) > aMin(inp.value));
+      horasBox.insertBefore(row, despues || null); actualizar(); return inp;
+    };
+    horasDe(c).forEach(m => addHora(m));
+    let tema = TEMAS[c.tema] ? c.tema : 'lila';
+    const temas = h('div', { class: 'temas', role: 'group', 'aria-label': t('colorLabel') });
+    const pintarTemas = () => { temas.querySelectorAll('.tema').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === tema))); ponerSuelo(TEMAS[tema].suelo); };
+    Object.entries(TEMAS).forEach(([k, v]) => temas.append(h('button', { type: 'button', class: 'tema', 'data-t': k, 'aria-label': t('tema_' + k), title: t('tema_' + k), style: 'background:' + v.suelo, onclick: () => { tema = k; pintarTemas(); } },
+      h('span', { style: 'background:' + v.bol }))));
+    pintarTemas();
+    form.append(
+      field(t('petName'), pet),
+      h('div', { class: 'f' }, h('span', null, t('people')), people,
+        h('button', { type: 'button', class: 'link add-person', onclick: () => { if (people.children.length < 8) addRow().focus(); } }, '+ ' + t('addPerson')),
+        h('span', { class: 'hint' }, t('peopleHint'))),
+      h('div', { class: 'f' }, h('span', null, t('meals')), horasBox, addMealBtn, h('span', { class: 'hint' }, t('mealsHint'))),
+      h('div', { class: 'f' }, h('span', null, t('colorLabel')), temas, h('span', { class: 'hint' }, t('colorHint')))
+    );
+    collect = () => ({ mascota: pet.value.trim(), personas: [...people.querySelectorAll('input')].map(i => i.value.trim()).filter(Boolean), horas: [...new Set(valores())].sort((a, b) => a - b).map(hora), tema });
+  }
+
+  const pin = h('input', { class: 'pin-input', type: 'password', inputmode: 'numeric', maxlength: 4, autocomplete: 'off' });
+  form.append(isEdit ? field(t('pinChange'), pin, t('pinChangeHint')) : field(t('pinNew'), pin, t('pinNewHint')));
+  const submit = h('button', { class: 'btn', type: 'submit' }, isEdit ? t('save') : t('saveStart'));
+  form.append(err, h('div', { class: 'form-actions' }, submit, isEdit ? h('button', { type: 'button', class: 'btn sec', onclick: render }, t('cancel')) : null),
+    h('p', { class: 'privacidad' }, t('privacy')));
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault(); err.textContent = '';
+    const cfg = collect();
+    if (S.tipo === 'P' && (!cfg.mascota || !cfg.personas.length)) { err.textContent = t('dataErr'); return; }
+    if (S.tipo === 'P' && !cfg.horas.length) { err.textContent = t('mealsErr'); return; }
+    if (pin.value && !/^\d{4}$/.test(pin.value)) { err.textContent = t('pinFormat'); return; }
+    if (!isEdit && !pin.value) { err.textContent = t('pinFormat'); return; }
+    submit.disabled = true; submit.textContent = t('saving');
+    try {
+      const r = await api('configurar', { config: cfg, pinNuevo: pin.value || undefined, pinActual: PIN_OK || undefined });
+      if (!r.ok) throw r.error;
+      S = r; PIN_OK = null; render(); toast(t('saved'));
+    } catch (code) {
+      submit.disabled = false; submit.textContent = isEdit ? t('save') : t('saveStart');
+      err.textContent = code === 'pin_formato' ? t('pinFormat') : code === 'datos' ? t('dataErr') : code === 'pin' ? t('pinWrong') : t('errNet');
+    }
+  });
+
+  const titleKey = 'pSetupTitle', introKey = 'pSetupIntro', kicker = t('petLabel');
+  mount(h('div', { class: 'screen' },
+    h('p', { class: 'setup-kicker' }, kicker),
+    h('h1', { class: 'pegatina setup-title' }, isEdit ? t('settings') : t(titleKey)),
+    isEdit ? null : h('p', { class: 'intro' }, t(introKey)),
+    form), brand());
+}
+
+cargar();
+</script>
+</body>
+</html>
