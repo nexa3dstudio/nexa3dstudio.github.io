@@ -189,6 +189,59 @@
   @keyframes fade { from { opacity: 0; } }
   @keyframes up { from { transform: translateY(40px); opacity: .4; } }
 
+  /* ——— Mini vinilo ——— */
+  .vin-de { text-align: center; font-weight: 700; font-size: 16px; margin: 6px 0 0; }
+  .disco { position: relative; width: min(84vw, 360px); aspect-ratio: 1; margin: 14px auto 0; }
+  .disco svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .disco .brillo { transform-origin: 50% 50%; animation: girar 9s linear infinite; }
+  .disco.sonando .brillo { animation-duration: 1.8s; }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  .disco-nombre {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 40%;
+    text-align: center; font-size: 34px; white-space: nowrap; overflow: hidden; pointer-events: none;
+  }
+  .fecha { align-self: center; margin-top: 16px; }
+  .dedicatoria { margin-top: 18px; }
+  .dedicatoria p { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.4; white-space: pre-line; }
+  .dedicatoria .firma { margin-top: 10px; font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 24px; text-align: right; }
+  .polaroid {
+    margin: 22px auto 0; width: min(78vw, 320px); background: var(--surface); border: var(--borde); border-radius: 10px;
+    box-shadow: var(--sombra); padding: 10px 10px 34px; transform: rotate(-2deg);
+  }
+  .polaroid img, .polaroid .hueco { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 4px; border: 2px solid var(--ink); background: var(--soft); }
+  .canciones { display: grid; gap: 10px; margin-top: 22px; }
+  .canciones h2 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 26px; margin: 6px 0 0; }
+  .cancion {
+    display: grid; grid-template-columns: 56px 1fr 40px; gap: 12px; align-items: center;
+    background: var(--surface); border: var(--borde); border-radius: 18px; box-shadow: var(--sombra);
+    padding: 10px 12px 10px 10px; text-decoration: none; transition: transform .08s ease, background-color .15s ease;
+  }
+  .cancion:active { transform: scale(.98); }
+  .cancion .portada { width: 56px; height: 56px; border-radius: 10px; border: 2px solid var(--ink); object-fit: cover; background: var(--ink); display: grid; place-items: center; }
+  .cancion .portada svg { width: 34px; height: 34px; }
+  .cancion b { display: block; font-size: 17px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .cancion small { display: block; font-size: 14px; font-weight: 600; color: var(--muted-on-white); margin-top: 2px; }
+  .cancion .ir { width: 40px; height: 40px; border-radius: 50%; background: var(--etiqueta, var(--rojo)); color: #FFFFFF; border: 2px solid var(--ink); display: grid; place-items: center; }
+  .cancion .ir svg { width: 16px; height: 16px; margin-left: 2px; }
+  .m-play { margin-top: 22px; }
+  .btn.etiqueta { background: var(--etiqueta, var(--rojo)); color: #FFFFFF; box-shadow: 0 5px 0 var(--ink); }
+  .espera { margin-top: 20px; text-align: center; }
+  .espera h2 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 30px; margin: 0 0 6px; }
+  .espera p { margin: 0; }
+  .aviso-tuyo { margin-top: 22px; }
+  .aviso-tuyo h2 { font-family: var(--display); font-weight: 800; font-stretch: 75%; font-size: 26px; margin: 0 0 6px; }
+  .aviso-tuyo p { margin: 0 0 14px; }
+  .vista-tuya { text-align: center; margin-top: 8px; }
+  /* formulario del vinilo */
+  .foto-campo { display: grid; grid-template-columns: 84px 1fr; gap: 14px; align-items: center; }
+  .foto-campo .mini { width: 84px; height: 104px; border: var(--borde); border-radius: 10px; background: var(--surface); object-fit: cover; display: grid; place-items: center; font-size: 30px; }
+  .foto-campo .botones { display: grid; gap: 8px; justify-items: start; }
+  .foto-campo input[type=file] { display: none; }
+  input[type=date] { width: 100%; border: var(--borde); background: var(--surface); border-radius: var(--r-md); padding: 12px 16px; font-size: 17px; font-weight: 600; outline: none; min-height: 52px; }
+  input[type=date]:focus { box-shadow: 3px 4px 0 var(--ink); }
+  .pareja-aviso { margin: 12px 0 0; font-weight: 600; }
+  @media (hover: hover) and (pointer: fine) { .cancion:hover { background: var(--soft); } .btn.etiqueta:hover:not([disabled]) { filter: brightness(.9); } }
+
   /* ——— Formularios ——— */
   .setup-kicker { font-weight: 700; margin: 14px 0 2px; }
   .setup-title { font-size: 40px; line-height: 1.02; margin: 0; }
@@ -387,18 +440,49 @@ const TXT = {
     infoTitle: 'Información',
     whatsapp: 'Escribir por WhatsApp',
     // Vinilo
+    mLabel: 'Mini vinilo',
     mSetupTitle: 'Configura tu vinilo',
-    mSetupIntro: 'Elige la canción que sonará al acercar el móvil. Puedes cambiarla cuando quieras.',
-    songLink: 'Enlace de la canción',
-    songHint: 'Spotify, YouTube, Apple Music… Copia el enlace con «Compartir → Copiar enlace».',
+    mSetupIntro: 'Elige la canción que sonará al acercar el móvil y, si quieres, una dedicatoria, una fecha y una foto. Puedes cambiarlo cuando quieras.',
+    mSetupIntroPareja: 'Este vinilo va a juego con otro. Lo que pongas aquí lo verá la otra persona al acercar el móvil a su vinilo.',
+    songs: 'Canciones',
+    songsHint: 'Pega el enlace desde Spotify, YouTube, Apple Music… con «Compartir → Copiar enlace». Hasta 5.',
+    songPh: 'https://open.spotify.com/…',
+    addSong: 'Añadir otra canción',
+    removeSong: 'Quitar esta canción',
     to: 'Para',
+    toPh: 'Por ejemplo, Lucía',
     from: 'De',
+    fromPh: 'Por ejemplo, Pablo',
     message: 'Dedicatoria',
+    messagePh: 'Escribe lo que quieras decirle…',
+    date: 'Fecha especial',
+    photo: 'Foto',
+    photoHint: 'Se verá debajo de la dedicatoria.',
+    photoAdd: 'Elegir foto',
+    photoChange: 'Cambiar foto',
+    photoRemove: 'Quitar foto',
+    photoErr: 'No se ha podido usar esa foto. Prueba con otra.',
+    vColorLabel: 'Color',
+    vColorHint: 'Elige el color de la etiqueta de tu vinilo.',
+    tema_rojo: 'Rojo',
     optional: 'Opcional.',
     paraX: 'Para {name}',
     deX: 'De {name}',
+    deTi: 'De {name}, para ti',
     play: 'Escuchar',
-    linkErr: 'Pega un enlace que empiece por https://'
+    listen: 'Escuchar',
+    moreSongs: 'Más canciones',
+    songN: 'Canción {n}',
+    linkErr: 'Pega al menos un enlace que empiece por https://',
+    privacyM: 'Guardamos las canciones, los nombres, la dedicatoria, la fecha y la foto que pongas aquí, solo para que funcione este vinilo. La foto se guarda en privado y solo se ve al acercar el móvil. Si quieres borrarlo todo, escríbenos por Etsy.',
+    waitTitle: 'Tu canción ya está lista',
+    waitBody: 'Cuando la otra persona configure su vinilo, aquí verás lo que te ha dedicado.',
+    seeMine: 'Ver lo que he puesto yo',
+    seeTheirs: 'Volver a lo que me han dedicado',
+    yourTurnTitle: 'Te toca a ti',
+    yourTurnBody: 'Elige tú también una canción para la otra persona. La verá en su vinilo.',
+    yourTurnBtn: 'Configurar mi vinilo',
+    mine: 'Así lo ve la otra persona'
   },
   en: {
     loading: 'Loading…',
@@ -510,18 +594,49 @@ const TXT = {
     qrText: 'Another device? Scan this code with its camera to connect.',
     infoTitle: 'Information',
     whatsapp: 'Message on WhatsApp',
+    mLabel: 'Mini record',
     mSetupTitle: 'Set up your record',
-    mSetupIntro: 'Choose the song that plays when someone taps their phone. You can change it anytime.',
-    songLink: 'Song link',
-    songHint: 'Spotify, YouTube, Apple Music… Use “Share → Copy link”.',
+    mSetupIntro: 'Choose the song that plays when someone taps their phone and, if you like, a message, a date and a photo. You can change it anytime.',
+    mSetupIntroPareja: 'This record has a matching partner. Whatever you add here is what the other person sees when they tap their record.',
+    songs: 'Songs',
+    songsHint: 'Paste the link from Spotify, YouTube, Apple Music… using “Share → Copy link”. Up to 5.',
+    songPh: 'https://open.spotify.com/…',
+    addSong: 'Add another song',
+    removeSong: 'Remove this song',
     to: 'To',
+    toPh: 'For example, Lucy',
     from: 'From',
+    fromPh: 'For example, Paul',
     message: 'Message',
+    messagePh: 'Write what you want to tell them…',
+    date: 'Special date',
+    photo: 'Photo',
+    photoHint: 'Shown below the message.',
+    photoAdd: 'Choose photo',
+    photoChange: 'Change photo',
+    photoRemove: 'Remove photo',
+    photoErr: 'That photo couldn’t be used. Try another one.',
+    vColorLabel: 'Colour',
+    vColorHint: 'Pick the colour of your record’s label.',
+    tema_rojo: 'Red',
     optional: 'Optional.',
     paraX: 'For {name}',
     deX: 'From {name}',
+    deTi: 'From {name}, for you',
     play: 'Listen',
-    linkErr: 'Paste a link that starts with https://'
+    listen: 'Listen',
+    moreSongs: 'More songs',
+    songN: 'Song {n}',
+    linkErr: 'Paste at least one link that starts with https://',
+    privacyM: 'We store the songs, names, message, date and photo you add here only so this record works. The photo is kept private and is only shown when someone taps the record. To delete everything, message us on Etsy.',
+    waitTitle: 'Your song is ready',
+    waitBody: 'Once the other person sets up their record, you’ll see what they dedicated to you here.',
+    seeMine: 'See what I added',
+    seeTheirs: 'Back to what they dedicated to me',
+    yourTurnTitle: 'Your turn',
+    yourTurnBody: 'Choose a song for the other person too. They’ll see it on their record.',
+    yourTurnBtn: 'Set up my record',
+    mine: 'This is what the other person sees'
   }
 };
 const LANG = (navigator.language || 'es').toLowerCase().startsWith('es') ? 'es' : 'en';
@@ -580,6 +695,15 @@ const TEMAS = {
   arena:    { suelo: '#E8D3AE', bol: '#8A5A3A' }
 };
 const temaDe = cfg => TEMAS[cfg && cfg.tema] || TEMAS.lila;
+/* Temas del vinilo: fondo de la pantalla y color de la etiqueta, a juego con la pieza */
+const TEMAS_M = {
+  rojo:  { suelo: '#F3B8B2', etiqueta: '#C8262E' },
+  azul:  { suelo: '#A9CDEB', etiqueta: '#2F6FB0' },
+  rosa:  { suelo: '#F6C3D2', etiqueta: '#D9578A' },
+  lila:  { suelo: '#CDBDF0', etiqueta: '#6E50B8' },
+  verde: { suelo: '#B9DBAA', etiqueta: '#3F8F3A' }
+};
+const temaM = cfg => TEMAS_M[cfg && cfg.tema] || TEMAS_M.rojo;
 function ponerSuelo(c) {
   document.documentElement.style.setProperty('--suelo', c);
   const m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', c);
@@ -596,8 +720,9 @@ let K = (params.get('k') || '').toUpperCase();
 let S = null; // { tipo, configurado, config, eventos }
 
 async function api(action, payload = {}) {
-  if (action === 'leer') {
-    const r = await fetch(API + '?action=leer&k=' + encodeURIComponent(K), { cache: 'no-store' });
+  if (action === 'leer' || action === 'foto') {
+    const extra = payload.pareja ? '&pareja=1' : '';
+    const r = await fetch(API + '?action=' + action + '&k=' + encodeURIComponent(K) + extra, { cache: 'no-store' });
     return r.json();
   }
   const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, k: K }, payload)) });
@@ -617,7 +742,15 @@ async function cargar() {
 }
 
 function render() {
-  if (S.tipo !== 'P') return renderNotFound();   // por ahora solo ¿Ha comido?
+  if (S.tipo === 'M') {   // Mini vinilo
+    document.body.className = 'vinilo';
+    document.title = t('mLabel') + ' · Nexa3D';
+    const pareja = S.pareja && S.pareja.configurado ? S.pareja.config : null;
+    ponerSuelo(temaM(pareja || S.config).suelo);
+    if (!S.configurado) return pareja ? renderVinyl('pareja') : renderSetup(false);
+    return renderVinyl(S.pareja ? (pareja ? 'pareja' : 'espera') : 'propio');
+  }
+  if (S.tipo !== 'P') return renderNotFound();   // la Wi-Fi todavía no
   document.body.className = 'pet';
   ponerSuelo(temaDe(S.config).suelo);
   if (!S.configurado) return renderSetup(false);
@@ -885,6 +1018,152 @@ function openHistory() {
   document.body.append(back);
 }
 
+/* ══════════ Mini vinilo ══════════ */
+/* Modos: 'propio' (vinilo normal) · 'pareja' (pack a juego: lo que te ha dedicado la otra persona)
+   · 'espera' (a juego, la otra persona aún no lo ha configurado) · 'mio' (a juego: vista previa de lo tuyo) */
+function plataforma(url) {
+  const u = String(url || '').toLowerCase();
+  if (u.includes('spotify')) return 'Spotify';
+  if (u.includes('music.apple')) return 'Apple Music';
+  if (u.includes('music.youtube')) return 'YouTube Music';
+  if (u.includes('youtu')) return 'YouTube';
+  if (u.includes('deezer')) return 'Deezer';
+  if (u.includes('soundcloud')) return 'SoundCloud';
+  if (u.includes('amazon')) return 'Amazon Music';
+  if (u.includes('tidal')) return 'Tidal';
+  return '';
+}
+const cancionesDe = c => Array.isArray(c && c.canciones) && c.canciones.length ? c.canciones : (c && c.enlace ? [{ url: c.enlace }] : []);
+let discoN = 0;
+function discoSvg(etiqueta, conAgujero) {
+  const id = 'brillo' + (++discoN);
+  let surcos = '';
+  for (let r = 44; r <= 92; r += 3.2) surcos += '<circle cx="100" cy="100" r="' + r.toFixed(1) + '" fill="none" stroke="#FFFFFF" stroke-opacity="' + (r % 2 < 1 ? .08 : .045) + '" stroke-width="1"/>';
+  return '<svg viewBox="0 0 200 200" aria-hidden="true">' +
+    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity=".22"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient></defs>' +
+    '<circle cx="104" cy="105" r="97" fill="#2A1F3D"/>' +
+    '<circle cx="100" cy="100" r="97" fill="#241A33" stroke="#2A1F3D" stroke-width="2.5"/>' +
+    surcos +
+    '<g class="brillo"><path d="M100 100 L60 12 A96 96 0 0 1 140 12 Z" fill="url(#' + id + ')"/><path d="M100 100 L140 188 A96 96 0 0 1 60 188 Z" fill="url(#' + id + ')"/></g>' +
+    '<circle cx="100" cy="100" r="37" fill="' + etiqueta + '" stroke="#2A1F3D" stroke-width="2.5"/>' +
+    '<circle cx="100" cy="100" r="31" fill="none" stroke="#FFFFFF" stroke-opacity=".35" stroke-width="1"/>' +
+    (conAgujero ? '<circle cx="100" cy="100" r="4" fill="#2A1F3D"/>' : '') +
+    '</svg>';
+}
+const ICON_DISCO = '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="#241A33"/><circle cx="20" cy="20" r="12" fill="none" stroke="#FFFFFF" stroke-opacity=".15"/><circle cx="20" cy="20" r="7" fill="var(--etiqueta, #C8262E)"/><circle cx="20" cy="20" r="1.6" fill="#241A33"/></svg>';
+function fechaBonita(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); if (!m) return '';
+  return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(LANG, { day: 'numeric', month: 'long', year: 'numeric' });
+}
+/* Título sin repetir el artista («Ed Sheeran - Thinking Out Loud» → «Thinking Out Loud») */
+function tituloLimpio(s) {
+  let ti = String((s && s.titulo) || '').trim(); const au = String((s && s.autor) || '').trim();
+  if (au && ti.toLowerCase().startsWith(au.toLowerCase())) { const resto = ti.slice(au.length).replace(/^\s*[-–—:|]\s*/, ''); if (resto) ti = resto; }
+  return ti;
+}
+function nombreCancion(s, i) { return tituloLimpio(s) || plataforma(s && s.url) || t('songN', { n: i + 1 }); }
+function detalleCancion(s, i) { const n = nombreCancion(s, i); return [s.autor, plataforma(s.url)].filter(v => v && v !== n).filter((v, j, a) => a.indexOf(v) === j).join(' · '); }
+/* El nombre en la etiqueta, tan grande como quepa */
+function ajustarEtiqueta(el) {
+  if (!el) return;
+  const encajar = () => {
+    let px = Math.min(40, Math.floor(el.clientWidth / Math.max(el.textContent.length * 0.5, 1)));
+    el.style.fontSize = px + 'px';
+    while (px > 12 && el.scrollWidth > el.clientWidth + 1) { px -= 1; el.style.fontSize = px + 'px'; }
+  };
+  encajar();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(encajar);
+}
+
+function renderVinyl(modo) {
+  const propio = modo === 'propio' || modo === 'mio' || modo === 'espera';
+  const c = (modo === 'pareja' ? S.pareja.config : S.config) || {};
+  const tema = temaM(c); ponerSuelo(tema.suelo);
+  document.documentElement.style.setProperty('--etiqueta', tema.etiqueta);
+  const canciones = cancionesDe(c);
+  const nombre = (c.para || '').trim();
+
+  // en la espera del pack a juego no se pone nombre: lo tuyo es para la otra persona
+  const conNombre = nombre && modo !== 'espera';
+  const disco = h('div', { class: 'disco', role: 'img', 'aria-label': conNombre ? t('paraX', { name: nombre }) : t('mLabel') },
+    h('div', { html: discoSvg(tema.etiqueta, !conNombre) }),
+    conNombre ? h('span', { class: 'pegatina disco-nombre' }, nombre) : null);
+
+  const partes = [];
+  partes.push(h('div', { class: 'top' }, h('span', { class: 'top-label' }, modo === 'mio' ? t('mine') : t('mLabel')), S.configurado ? gearBtn() : h('span')));
+
+  if (modo === 'espera') {
+    partes.push(disco, h('div', { class: 'espera' }, h('h2', null, t('waitTitle')), h('p', null, t('waitBody'))),
+      h('div', { class: 'vista-tuya' }, h('button', { class: 'link', onclick: () => renderVinyl('mio') }, t('seeMine'))));
+    mount(h('div', { class: 'screen' }, ...partes), brand());
+    ajustarEtiqueta($app.querySelector('.disco-nombre'));
+    return;
+  }
+
+  partes.push(disco);
+  if (c.fecha) partes.push(h('span', { class: 'chip fecha' }, fechaBonita(c.fecha)));
+
+  const primera = canciones[0];
+  if (primera) {
+    const p = plataforma(primera.url);
+    const ti = tituloLimpio(primera);
+    if (ti) partes.push(h('div', { class: 'vin-de', style: 'margin-top:16px' },
+      h('b', { style: 'display:block;font-size:20px' }, ti),
+      primera.autor && primera.autor !== ti ? h('span', null, primera.autor) : null));
+    partes.push(h('div', { class: 'm-play' }, h('a', { class: 'btn etiqueta', href: primera.url, target: '_blank', rel: 'noopener',
+      onclick: () => disco.classList.add('sonando'),
+      html: ICON.play + '<span>' + esc(p ? t('listenOn', { p }) : t('listen')) + '</span>' })));
+  }
+
+  if (c.mensaje) {
+    partes.push(h('section', { class: 'card dedicatoria' }, h('p', null, '«' + c.mensaje + '»'),
+      c.de ? h('p', { class: 'firma' }, '— ' + c.de) : null));
+  } else if (c.de) {
+    partes.push(h('p', { class: 'vin-de', style: 'margin-top:18px' }, modo === 'pareja' ? t('deTi', { name: c.de }) : t('deX', { name: c.de })));
+  }
+
+  if (c.foto) {
+    const marco = h('div', { class: 'polaroid' }, h('div', { class: 'hueco' }));
+    partes.push(marco);
+    api('foto', { pareja: modo === 'pareja' }).then(r => {
+      if (r && r.ok && r.data) marco.replaceChildren(h('img', { src: r.data, alt: t('photo') }));
+      else marco.remove();
+    }).catch(() => marco.remove());
+  }
+
+  if (canciones.length > 1) {
+    partes.push(h('div', { class: 'canciones' }, h('h2', null, t('moreSongs')),
+      canciones.slice(1).map((s, i) => h('a', { class: 'cancion', href: s.url, target: '_blank', rel: 'noopener', onclick: () => disco.classList.add('sonando') },
+        s.portada ? h('img', { class: 'portada', src: s.portada, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer', onerror: e => e.target.replaceWith(h('span', { class: 'portada', html: ICON_DISCO })) }) : h('span', { class: 'portada', html: ICON_DISCO }),
+        h('span', null, h('b', null, nombreCancion(s, i + 1)), detalleCancion(s, i + 1) ? h('small', null, detalleCancion(s, i + 1)) : null),
+        h('span', { class: 'ir', html: ICON.play })))));
+  }
+
+  if (modo === 'pareja' && !S.configurado) {
+    partes.push(h('section', { class: 'card aviso-tuyo' }, h('h2', null, t('yourTurnTitle')), h('p', null, t('yourTurnBody')),
+      h('button', { class: 'btn', onclick: () => renderSetup(false) }, t('yourTurnBtn'))));
+  }
+  if (modo === 'pareja' && S.configurado) partes.push(h('div', { class: 'vista-tuya' }, h('button', { class: 'link', onclick: () => renderVinyl('mio') }, t('seeMine'))));
+  if (modo === 'mio') partes.push(h('div', { class: 'vista-tuya' }, h('button', { class: 'link', onclick: render }, t('seeTheirs'))));
+
+  mount(h('div', { class: 'screen' }, ...partes), brand());
+  ajustarEtiqueta($app.querySelector('.disco-nombre'));
+}
+
+/* La foto se reduce en el móvil antes de subirla (lado mayor 1280 px, JPEG) */
+async function prepararFoto(file) {
+  let img;
+  try { img = await createImageBitmap(file); } catch (_) {
+    img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(file); });
+  }
+  const lado = 1280, k = Math.min(1, lado / Math.max(img.width, img.height));
+  const cv = document.createElement('canvas'); cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+  let q = .84, data = cv.toDataURL('image/jpeg', q);
+  while (data.length > 1400000 && q > .4) { q -= .12; data = cv.toDataURL('image/jpeg', q); }
+  return data;
+}
+
 /* ══════════ Configuración (primera vez y ajustes) ══════════ */
 let PIN_OK = null;
 function openSettings() {
@@ -961,31 +1240,98 @@ function renderSetup(isEdit) {
     collect = () => ({ mascota: pet.value.trim(), personas: [...people.querySelectorAll('input')].map(i => i.value.trim()).filter(Boolean), horas: [...new Set(valores())].sort((a, b) => a - b).map(hora), tema });
   }
 
+  let fotoExtra = () => ({});
+  if (S.tipo === 'M') {
+    const MAX_CANC = 5;
+    const lista = h('div', { class: 'people canciones-f' });
+    const addSongBtn = h('button', { type: 'button', class: 'link add-person', onclick: () => { const i = addSong(); if (i) i.focus(); } }, '+ ' + t('addSong'));
+    const actualizar = () => { addSongBtn.hidden = lista.children.length >= MAX_CANC; };
+    const addSong = (v = '') => {
+      if (lista.children.length >= MAX_CANC) return null;
+      const inp = h('input', { type: 'url', maxlength: 400, inputmode: 'url', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: t('songPh'), value: v });
+      const row = h('div', { class: 'p-row' }, inp, h('button', { type: 'button', 'aria-label': t('removeSong'), title: t('removeSong'), onclick: () => { if (lista.children.length > 1) { row.remove(); actualizar(); } else inp.value = ''; } }, '×'));
+      lista.append(row); actualizar(); return inp;
+    };
+    const previas = cancionesDe(c).map(s => s.url);
+    (previas.length ? previas : ['']).forEach(u => addSong(u));
+    const para = h('input', { type: 'text', maxlength: 30, autocomplete: 'off', placeholder: t('toPh'), value: c.para || '' });
+    const de = h('input', { type: 'text', maxlength: 30, autocomplete: 'off', placeholder: t('fromPh'), value: c.de || '' });
+    const msg = h('textarea', { maxlength: 280, placeholder: t('messagePh') }); msg.value = c.mensaje || '';
+    const fecha = h('input', { type: 'date', value: c.fecha || '' });
+
+    // foto: se mantiene, se quita o se cambia por una nueva
+    let fotoEstado = 'mantener', fotoData = '';
+    const mini = h('div', { class: 'mini', 'aria-hidden': 'true' }, '＋');
+    const fileInp = h('input', { type: 'file', accept: 'image/*' });
+    const btnElegir = h('button', { type: 'button', class: 'btn sec small', onclick: () => fileInp.click() }, t('photoAdd'));
+    const btnQuitar = h('button', { type: 'button', class: 'link', hidden: true, onclick: () => { fotoEstado = 'quitar'; fotoData = ''; pintarFoto(null); } }, t('photoRemove'));
+    const pintarFoto = src => {
+      const nuevo = src ? h('img', { class: 'mini', src, alt: '' }) : h('div', { class: 'mini', 'aria-hidden': 'true' }, '＋');
+      campoFoto.firstChild.replaceWith(nuevo);
+      btnElegir.textContent = src ? t('photoChange') : t('photoAdd');
+      btnQuitar.hidden = !src;
+    };
+    fileInp.addEventListener('change', async () => {
+      const f = fileInp.files && fileInp.files[0]; if (!f) return;
+      try { fotoData = await prepararFoto(f); fotoEstado = 'nueva'; pintarFoto(fotoData); err.textContent = ''; }
+      catch (_) { err.textContent = t('photoErr'); }
+      fileInp.value = '';
+    });
+    const campoFoto = h('div', { class: 'foto-campo' }, mini, h('div', { class: 'botones' }, btnElegir, btnQuitar, fileInp));
+    if (isEdit && c.foto) api('foto').then(r => { if (r && r.ok && fotoEstado === 'mantener') pintarFoto(r.data); }).catch(() => {});
+
+    let tema = TEMAS_M[c.tema] ? c.tema : 'rojo';
+    const temas = h('div', { class: 'temas', role: 'group', 'aria-label': t('vColorLabel') });
+    const pintarTemas = () => { temas.querySelectorAll('.tema').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.t === tema))); ponerSuelo(TEMAS_M[tema].suelo); };
+    Object.entries(TEMAS_M).forEach(([k, v]) => temas.append(h('button', { type: 'button', class: 'tema', 'data-t': k, 'aria-label': t('tema_' + k), title: t('tema_' + k), style: 'background:' + v.suelo, onclick: () => { tema = k; pintarTemas(); } },
+      h('span', { style: 'background:' + v.etiqueta }))));
+    pintarTemas();
+
+    form.append(
+      h('div', { class: 'f' }, h('span', null, t('songs')), lista, addSongBtn, h('span', { class: 'hint' }, t('songsHint'))),
+      field(t('to'), para, t('optional')),
+      field(t('message'), msg, t('optional')),
+      field(t('from'), de, t('optional')),
+      field(t('date'), fecha, t('optional')),
+      h('div', { class: 'f' }, h('span', null, t('photo')), campoFoto, h('span', { class: 'hint' }, t('photoHint') + ' ' + t('optional'))),
+      h('div', { class: 'f' }, h('span', null, t('vColorLabel')), temas, h('span', { class: 'hint' }, t('vColorHint')))
+    );
+    collect = () => ({
+      canciones: [...lista.querySelectorAll('input')].map(i => i.value.trim()).filter(Boolean).map(url => ({ url })),
+      para: para.value.trim(), de: de.value.trim(), mensaje: msg.value.trim(), fecha: fecha.value || '', tema
+    });
+    fotoExtra = () => fotoEstado === 'nueva' ? { fotoData } : fotoEstado === 'quitar' ? { foto: 'quitar' } : {};
+  }
+
   const pin = h('input', { class: 'pin-input', type: 'password', inputmode: 'numeric', maxlength: 4, autocomplete: 'off' });
   form.append(isEdit ? field(t('pinChange'), pin, t('pinChangeHint')) : field(t('pinNew'), pin, t('pinNewHint')));
   const submit = h('button', { class: 'btn', type: 'submit' }, isEdit ? t('save') : t('saveStart'));
   form.append(err, h('div', { class: 'form-actions' }, submit, isEdit ? h('button', { type: 'button', class: 'btn sec', onclick: render }, t('cancel')) : null),
-    h('p', { class: 'privacidad' }, t('privacy')));
+    h('p', { class: 'privacidad' }, t(S.tipo === 'M' ? 'privacyM' : 'privacy')));
 
   form.addEventListener('submit', async e => {
     e.preventDefault(); err.textContent = '';
     const cfg = collect();
     if (S.tipo === 'P' && (!cfg.mascota || !cfg.personas.length)) { err.textContent = t('dataErr'); return; }
     if (S.tipo === 'P' && !cfg.horas.length) { err.textContent = t('mealsErr'); return; }
+    if (S.tipo === 'M' && (!cfg.canciones.length || cfg.canciones.some(s => !/^https:\/\/\S+$/i.test(s.url)))) { err.textContent = t('linkErr'); return; }
     if (pin.value && !/^\d{4}$/.test(pin.value)) { err.textContent = t('pinFormat'); return; }
     if (!isEdit && !pin.value) { err.textContent = t('pinFormat'); return; }
     submit.disabled = true; submit.textContent = t('saving');
     try {
-      const r = await api('configurar', { config: cfg, pinNuevo: pin.value || undefined, pinActual: PIN_OK || undefined });
+      const r = await api('configurar', Object.assign({ config: cfg, pinNuevo: pin.value || undefined, pinActual: PIN_OK || undefined }, fotoExtra()));
       if (!r.ok) throw r.error;
       S = r; PIN_OK = null; render(); toast(t('saved'));
     } catch (code) {
       submit.disabled = false; submit.textContent = isEdit ? t('save') : t('saveStart');
-      err.textContent = code === 'pin_formato' ? t('pinFormat') : code === 'datos' ? t('dataErr') : code === 'pin' ? t('pinWrong') : t('errNet');
+      err.textContent = code === 'pin_formato' ? t('pinFormat') : code === 'datos' ? (S.tipo === 'M' ? t('linkErr') : t('dataErr')) : code === 'pin' ? t('pinWrong') : code === 'foto' ? t('photoErr') : t('errNet');
     }
   });
 
-  const titleKey = 'pSetupTitle', introKey = 'pSetupIntro', kicker = t('petLabel');
+  const esM = S.tipo === 'M';
+  const titleKey = esM ? 'mSetupTitle' : 'pSetupTitle';
+  const introKey = esM ? (S.pareja ? 'mSetupIntroPareja' : 'mSetupIntro') : 'pSetupIntro';
+  const kicker = esM ? t('mLabel') : t('petLabel');
   mount(h('div', { class: 'screen' },
     h('p', { class: 'setup-kicker' }, kicker),
     h('h1', { class: 'pegatina setup-title' }, isEdit ? t('settings') : t(titleKey)),
